@@ -1,34 +1,14 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
-import openai
-
-# Set up OpenAI from secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 st.set_page_config(page_title="The Playlist Film Headlines", layout="wide")
-st.title("🎞️ The Playlist Film Headlines Scraper + GPT Summarizer")
+st.title("🎞️ The Playlist Film Headlines Scraper")
 
 URL = "https://theplaylist.net/category/news/"
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
-
-def summarize_with_gpt(title, summary):
-    prompt = f"Rewrite the following film news headline and summary into a short, elegant 2-line summary suitable for a film digest.\n\nTitle: {title}\n\nSummary: {summary}\n\nOutput:"
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a concise, engaging film newsletter editor."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=80,
-            temperature=0.7,
-        )
-        return response["choices"][0]["message"]["content"].strip()
-    except Exception as e:
-        return f"GPT Summary failed: {e}"
 
 try:
     response = requests.get(URL, headers=HEADERS, timeout=10)
@@ -52,12 +32,6 @@ try:
             st.subheader(title)
             st.write(summary)
             st.markdown(f"[Read More]({link})")
-
-            # Optional GPT summary
-            with st.spinner("✨ Summarizing with GPT..."):
-                refined = summarize_with_gpt(title, summary)
-                st.success(refined)
-
             st.markdown("---")
 
 except Exception as e:
